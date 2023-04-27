@@ -71,6 +71,11 @@ classdef Controller < BaseController
             end
             obj.control.push(u);
         end
+
+        function [error, control] = stop(obj)
+            error = obj.error.get_data();
+            control = obj.control.get_data();
+        end
     end
     
     methods (Access = private)
