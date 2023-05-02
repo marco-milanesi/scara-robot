@@ -44,7 +44,7 @@ classdef Controller < BaseController
             size = obj.control.get_size();
         end
 
-        function obj = initizlize(obj)
+        function obj = initialize(obj)
             obj.error.initialize();
             obj.control.initialize();
         end
