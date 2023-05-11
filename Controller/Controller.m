@@ -7,41 +7,37 @@ classdef Controller < BaseController
         control
         error_coef
         control_coef
-        u_max
-        u_min
+        tau_cl
+        deriv_u_e
+        dc_gain
     end
 
     methods
-        function obj = Controller(st,controller_, u_sat_, size_)
-            if ~isa(controller_,'tf') || controller_.TS<=0
-                error("controller_ must be a 'tf' and it has to be a sampled system (controller_.Ts > 0)")
+        function obj = Controller(st,controller_,tau_cl_)
+            if nargin < 3
+                error('Not enough input')
+            end
+            if ~isa(controller_,'tf')
+                error("controller_ must be a 'tf'.")
             end
             obj@BaseController(st);
-            calc_coef(obj,controller_);
+            s=tf('s');
+            obj.deriv_u_e = dcgain(controller_*s);
+            if obj.deriv_u_e == 0
+                obj.dc_gain = dcgain(controller_);
+            end
+            controller_d=c2d(controller_,st);
+            calc_coef(obj,controller_d);
             if nargin < 3
-                u_sat_ = [0 1];
-            elseif length(u_sat_) ~= 2
-                error("The length of the maximum output acceptable must be 2 [u_min u_max]")
-            elseif u_sat_(1) > u_sat_(2)
-                error("The saturation of the actuator must be passed as a vector like '[u_min u_max]'")
+                u_sat_ = 1;
             end
-            if nargin < 4
-                size_=max([length(obj.error_coef) length(obj.control_coef)]);
-            elseif ~isa(size_,'double')
-                error("size_ has to be a double")
-            end
-            obj.error=Queue(size_);
-            obj.control=Queue(size_);
-            obj.u_min=u_sat_(1);
-            obj.u_max=u_sat_(2);
+            obj.error=Queue(length(obj.error_coef));
+            obj.control=Queue(length(obj.control_coef));
+            obj.tau_cl=tau_cl_;
         end
         
         function u_sat = get_saturation(obj)
-            u_sat = [obj.u_min obj.u_max];
-        end
-        
-        function size = get_size(obj)
-            size = obj.control.get_size();
+            u_sat = obj.umax;
         end
 
         function obj = initialize(obj)
@@ -49,25 +45,26 @@ classdef Controller < BaseController
             obj.control.initialize();
         end
         
-        function obj = starting(obj,error_,control_)
-            if nargin < 3
+        function obj=starting(obj,reference_,y_,u_)
+            if nargin < 4
                 error("not enought input argument")
             end
-            if length(error_) ~= obj.error.get_size && length(control_) ~= obj.control.get_size
-                error("initial values for error_ and for control_ have the wrong size it should be "+obj.error.get_size)
-            end
-            obj.error.initialize(error_);
-            obj.control.initialize(control_);
+            e = reference_-y_;
+            n_par_est = length(obj.control_coef)-1;
+            obj.error.initialize((e)*exp([-obj.st*length(obj.error_coef):obj.st:0]/obj.tau_cl));
+            pred_error = (reference_-y_)*exp([0:st:obj.st*n_par_est]/obj.tau_cl);
+            pred_control = (u_/e+obj.deriv_u_e*obj.st*[1:n_par_est]).*pred_error;
+
         end
         
         function u = computeControlAction(obj,reference_,y_)
             e = reference_ - y_;
             obj.error.push(e);
             u = obj.error(1:length(obj.error_coef))*obj.error_coef+obj.control(1:length(obj.control_coef))*obj.control_coef;
-            if u > obj.u_max
-                u = obj.u_max;
-            elseif u < obj.u_min
-                u = obj.u_min;
+            if u > obj.umax
+                u = obj.umax;
+            elseif u < -obj.umax
+                u = -obj.umax;
             end
             obj.control.push(u);
         end
