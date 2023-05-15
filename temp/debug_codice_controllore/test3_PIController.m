@@ -1,12 +1,13 @@
 clear all;clc;close all
-
+s=tf("s");
 for itest=1:100
     st=1e-3;
     Kp=5*rand; % setto dei valori random
     Ki=5*rand; % setto dei valori random
     umax=10*rand;
 
-    ctrl=PIController(st,Kp,Ki);
+    PI=Kp+Ki/s;
+    ctrl=Controller(st,PI,1);
     ctrl.setUMax(umax);
 
 

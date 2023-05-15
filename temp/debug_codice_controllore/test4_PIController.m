@@ -1,11 +1,12 @@
 clear all;clc;close all
-
+s=tf("s");
 st=1e-3;
 Kp=5; % valori taratura
 Ki=5; % valori taratura
 umax=150;
 
-ctrl=PIController(st,Kp,Ki);
+PI=(Kp+Ki/s);
+ctrl=Controller(st,PI,1);
 ctrl.setUMax(umax);
 
 

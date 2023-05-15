@@ -1,4 +1,4 @@
-classdef System < BaseController
+classdef System < handle
     %UNTITLED2 Summary of this class goes here
     %   Detailed explanation goes here
 
@@ -7,17 +7,20 @@ classdef System < BaseController
         output
         input_coef
         output_coef
-        u_max
-        u_min
+        st
     end
 
     methods
-        function obj = System(st, system_)
-            if ~isa(system_,'tf') || system_.TS<=0
-                error("controller_ must be a 'tf' and it has to be a sampled system (controller_.Ts > 0)")
+        function obj = System(st_, system_)
+            if nargin < 2
+                error("not enough input argument")
             end
-            obj@BaseController(st);
-            calc_coef(obj,system_);
+            if ~isa(system_,'tf')
+                error("controller_ must be a 'tf'")
+            end
+            obj.st = st_;
+            sys_d=c2d(system_,st_);
+            calc_coef(obj,sys_d);
             obj.input=Queue(length(obj.input_coef));
             obj.output=Queue(length(obj.output_coef));
         end
@@ -27,11 +30,11 @@ classdef System < BaseController
             obj.output.initialize();
         end
         
-        function u = computeControlAction(obj,reference_,y_)
-            e = reference_ - y_;
-            obj.error.push(e);
-            u = obj.error(1:length(obj.error_coef))*obj.error_coef+obj.control(1:length(obj.output_coef))*obj.output_coef;
-            obj.control.push(u);
+        function y = computeOutput(obj,u_)
+            
+            obj.input.push(u_);
+            y = obj.input(1:length(obj.input_coef))*obj.input_coef+obj.output(1:length(obj.output_coef))*obj.output_coef;
+            obj.output.push(y);
         end
     end
     

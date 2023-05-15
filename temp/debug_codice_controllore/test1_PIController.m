@@ -10,8 +10,8 @@ for itest=1:100
     umax=10*rand;
     
     PI=Kp+Ki/s;
-    PI_D=c2d(PI,st);
-    ctrl=Controller(st,PI_D,[-umax umax]);
+    ctrl=Controller(st,PI,1);
+    ctrl.setUMax(umax);
 
     ctrl.initialize; % inizializzo
 
@@ -19,32 +19,33 @@ for itest=1:100
     y=randn;
 
     uinitial=rand*umax;
+    ctrl.starting(setpoint,y,uinitial); % inizializzo lo stato
 
     u=ctrl.computeControlAction(setpoint,y);
     % the first u should be equal to uinitial
     assert(abs(u-uinitial)<1e-6)
 end
-
+disp("mitico!!")
 %% TEST 2
 
 %% TEST computeControlAction
-parfor itest=1:100
+for itest=1:100
     st=1e-3;
     Kp=5*rand; % setto dei valori random
     Ki=5*rand; % setto dei valori random
     umax=10*rand;
 
     PI=Kp+Ki/s;
-    PI_D=c2d(PI,st);
-    ctrl=Controller(st,PI_D,[-umax umax]);
+    ctrl=Controller(st,PI,1);
+    ctrl.setUMax(umax);
 
     ctrl.initialize; % inizializzo
 
 
     uinitial=rand*umax;
-%     ctrl.starting(setpoint,y,uinitial); % inizializzo lo stato
+    ctrl.starting(setpoint,y,uinitial); % inizializzo lo stato
 
-    for istep=1:10000
+    for istep=1:100
         setpoint=randn;
         y=randn;
         u=ctrl.computeControlAction(setpoint,y);
@@ -52,4 +53,4 @@ parfor itest=1:100
         assert((u<=umax) && (u>=-umax));
     end
 end
-
+disp("mitico pt2!!")

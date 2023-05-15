@@ -1,6 +1,6 @@
 clear all;clc;close all
 % COMPARE WITH TRANSFER FUNCTION - OPEN LOOP
-
+s=tf("s");
 
 for itest=1:100
     st=1e-3;
@@ -8,7 +8,8 @@ for itest=1:100
     Ki=5*rand; % setto dei valori random
     umax=10*rand;
 
-    ctrl=PIController(st,Kp,Ki);
+    PI=Kp+Ki/s;
+    ctrl=Controller(st,PI,1);
     ctrl.setUMax(umax);
 
 
