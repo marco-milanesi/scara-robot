@@ -1,4 +1,4 @@
-function [cost] = untitled(X)
+function [cost] = function_ga(X)
 kp=X(1);
 Ti=X(2);
 s=tf('s');
