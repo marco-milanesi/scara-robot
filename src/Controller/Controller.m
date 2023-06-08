@@ -50,28 +50,36 @@ classdef Controller < BaseController
                 error("not enought input argument")
             end
             e = reference_-y_;
-            n_par_est = length(obj.control_coef);
-            time_istant_back = flip([0:obj.st:obj.st*(length(obj.error_coef)-1)]);
-            obj.error.initialize( flip((e)*exp(time_istant_back/obj.tau_cl)) );
-            time_istant_forw = flip(-obj.st*(n_par_est-1):obj.st:0);
-            pred_error = (reference_-y_)*exp(time_istant_forw/obj.tau_cl);
-            pred_control = [(u_/e+obj.deriv_u_e*obj.st*(0:n_par_est-1)).*pred_error]';
-            error_total = [flip(pred_error(2:end)) obj.error.get_data()]';
-            C_est=zeros(n_par_est);
-            C_pred=zeros(n_par_est);
-            E=zeros(n_par_est,obj.error.get_size()+n_par_est-1);
-            for i = 1 : n_par_est
-                C_est(i,1:end-i+1)=obj.control_coef(i:end);
-                if i > 1
-                    C_pred(i,1:i-1) = flip(obj.control_coef(1:i-1));
+
+            if e == 0
+                obj.error.initialize(0);
+                obj.control.initialize(u_);
+            else
+                n_par_est = length(obj.control_coef);
+                time_istant_back = flip([0:obj.st:obj.st*(length(obj.error_coef)-1)]);
+                obj.error.initialize( flip((e)*exp(time_istant_back/obj.tau_cl)) );
+                time_istant_forw = flip(-obj.st*(n_par_est-1):obj.st:0);
+                pred_error = (reference_-y_)*exp(time_istant_forw/obj.tau_cl);
+                pred_control = [(u_/e+obj.deriv_u_e*obj.st*(0:n_par_est-1)).*pred_error]';
+                error_total = [flip(pred_error(2:end)) obj.error.get_data()]';
+                C_est=zeros(n_par_est);
+                C_pred=zeros(n_par_est);
+                E=zeros(n_par_est,obj.error.get_size()+n_par_est-1);
+                for i = 1 : n_par_est
+                    C_est(i,1:end-i+1)=obj.control_coef(i:end);
+                    if i > 1
+                        C_pred(i,1:i-1) = flip(obj.control_coef(1:i-1));
+                    end
+                    E(i,end-obj.error.get_size()+2-i:end-i+1) = -obj.error_coef;
                 end
-                E(i,end-obj.error.get_size()+2-i:end-i+1) = -obj.error_coef;
+                C_pred=eye(n_par_est)-C_pred;
+                obj.control.initialize(C_est\(C_pred*pred_control+E*error_total));
+                error_=obj.error.get_data();
+                obj.error.initialize([error_(2:end) 0]);
+    %             u = obj.error(1:length(obj.error_coef))*obj.error_coef+obj.control(1:length(obj.control_coef))*obj.control_coef;
             end
-            C_pred=eye(n_par_est)-C_pred;
-            obj.control.initialize(C_est\(C_pred*pred_control+E*error_total));
-            error_=obj.error.get_data();
-            obj.error.initialize([error_(2:end) 0]);
-%             u = obj.error(1:length(obj.error_coef))*obj.error_coef+obj.control(1:length(obj.control_coef))*obj.control_coef;
+
+            
         end
         
         function u = computeControlAction(obj,reference_,y_)

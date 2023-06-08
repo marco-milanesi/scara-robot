@@ -57,7 +57,7 @@ classdef Queue < handle
                 if length(data_) ~= obj.size && ~isscalar(data_)
                     error("the length of the initial data_ is incorect")
                 elseif isscalar(data_)
-                    obj.data = data_*ones(obj.size,1);
+                    obj.data = data_*ones(1,obj.size);
                 elseif size(data_,1) ~= 1
                     obj.data = data_';
                 else
