@@ -8,7 +8,7 @@ st=system.getSamplingPeriod;
 
 cs=ControlledSystemScara(system,'Alfa');
 
-max_acc=1;
+max_acc=10;
 
 [file_name, file_path] = uigetfile("controller_*.mat", "Controller");
 load([file_path file_name])
