@@ -27,6 +27,13 @@ classdef Queue < handle
             obj_copy=obj;
         end
 
+        function dif = differentiate(obj,st_)
+            if nargin < 2
+                st_ = 1;
+            end
+            dif=diff(obj.data)/st_;
+        end
+
         function dot_prd = mtimes(obj, vec_)
             if isa(vec_,'double')
                 if length(vec_) ~= obj.size

@@ -18,7 +18,7 @@ load([file_path file_name])
 
 %%
 
-ctrl=ScaraController(st, C1_in, C1_out, tau1_in, tau1_out, M1, C2_in, C2_out, tau2_in, tau2_out, M2)
+ctrl=ScaraController(st, C1_in, C1_out, tau2_out, 2, M1, C2_in, C2_out, 2, 2, M2)
 cs.setController(ctrl);
 cs.setMaxAcceleration(max_acc);
 
