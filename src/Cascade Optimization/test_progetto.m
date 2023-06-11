@@ -2,6 +2,8 @@ clear all;
 clc;
 close all;
 
+% BEST CONTROLLER FILE TO LOAD IS: controller_wf_50_100.mat
+
 system=ElasticRoboticSystem();
 
 st=system.getSamplingPeriod;

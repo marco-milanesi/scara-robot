@@ -2,10 +2,17 @@ clc
 clear all
 close all
 
-load("parameters_controller_int_joint1.mat", "x"); parms1_in = x;
-load("parameters_controller_ext_joint1.mat", "x1"); parms1_out = x1;
-load("parameters_controller_int_joint2.mat", "x"); parms2_in = x;
-load("parameters_controller_ext_joint2.mat", "x1"); parms2_out = x1;
+[file_joint1_in, path_joint1_in] = uigetfile("parameters_controller_int_joint1_*.mat");
+load([path_joint1_in, file_joint1_in], "x"); parms1_in = x;
+
+[file_joint1_ext, path_joint1_ext] = uigetfile("parameters_controller_ext_joint1_*.mat");
+load([path_joint1_ext, file_joint1_ext], "x1"); parms1_out = x1;
+
+[file_joint2_in, path_joint2_in] = uigetfile("parameters_controller_int_joint2_*.mat");
+load([path_joint2_in, file_joint2_in], "x"); parms2_in = x;
+
+[file_joint2_ext, path_joint2_ext] = uigetfile("parameters_controller_ext_joint2_*.mat");
+load([path_joint2_ext, file_joint2_ext], "x1"); parms2_out = x1;
 
 C1_in = generate_controller(parms1_in);
 C1_out = generate_controller(parms1_out);
