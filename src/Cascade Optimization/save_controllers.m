@@ -2,6 +2,8 @@ clc
 clear all
 close all
 
+% .\scara-robot\src\Cascade Optimization\controllers_parameters
+
 [file_joint1_in, path_joint1_in] = uigetfile("parameters_controller_int_joint1*.mat")
 load([path_joint1_in, file_joint1_in], "x"); parms1_in = x;
 
