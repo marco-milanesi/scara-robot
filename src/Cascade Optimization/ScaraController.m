@@ -5,12 +5,12 @@ classdef ScaraController < BaseController
         joint2_controller
     end
     methods
-        function obj=ScaraController(st,j1_inner_controller_, j1_outer_controller_, j1_tau_in_, j1_tau_out_, M1_, j2_inner_controller_, j2_outer_controller_, j2_tau_in_, j2_tau_out_, M2_)
+        function obj=ScaraController(st,j1_inner_controller_, j1_outer_controller_, j1_tau_in_, j1_tau_out_, M1_, j2_inner_controller_, j2_outer_controller_, j2_tau_in_, j2_tau_out_, M2_, is_ff_)
             % INSERIRE ASSERT SE NECESSARIO
             
             obj@BaseController(st);
-            obj.joint1_controller=CascadeController(st,j1_inner_controller_, j1_outer_controller_, j1_tau_in_, j1_tau_out_, M1_);
-            obj.joint2_controller=CascadeController(st,j2_inner_controller_, j2_outer_controller_, j2_tau_in_, j2_tau_out_, M2_);
+            obj.joint1_controller=CascadeController(st,j1_inner_controller_, j1_outer_controller_, j1_tau_in_, j1_tau_out_, M1_, is_ff_);
+            obj.joint2_controller=CascadeController(st,j2_inner_controller_, j2_outer_controller_, j2_tau_in_, j2_tau_out_, M2_, is_ff_);
         end
 
         % setta l'azione di controllo massima

@@ -2,7 +2,7 @@ clear all;
 clc;
 close all;
 
-% BEST CONTROLLER FILE TO LOAD IS: controller_wf_50_100.mat
+% BEST CONTROLLER FILE TO LOAD IS: feedforward
 
 system=ElasticRoboticSystem();
 
@@ -10,15 +10,16 @@ st=system.getSamplingPeriod;
 
 cs=ControlledSystemScara(system,'Alfa');
 
-max_acc=10;
+max_acc=15;
 
 [file_name, file_path] = uigetfile("controller_*.mat", "Controller");
 load([file_path file_name])
-
+disp(file_name)
 
 %%
-
-ctrl=ScaraController(st, C1_in, C1_out, tau2_out, 2, M1, C2_in, C2_out, 2, 2, M2)
+is_ff = true;
+disp(is_ff)
+ctrl=ScaraController(st, C1_in, C1_out, tau1_in, tau1_out, M1, C2_in, C2_out, tau2_in, tau2_out, M2, is_ff);
 cs.setController(ctrl);
 cs.setMaxAcceleration(max_acc);
 

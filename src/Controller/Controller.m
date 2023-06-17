@@ -13,24 +13,21 @@ classdef Controller < BaseController
     end
 
     methods
-        function obj = Controller(st,controller_,tau_cl_)
+        function obj = Controller(st_,controller_,tau_cl_)
             if nargin < 3
                 error('Not enough input')
             end
             if ~isa(controller_,'tf')
                 error("controller_ must be a 'tf'.")
             end
-            obj@BaseController(st);
+            obj@BaseController(st_);
             s=tf('s');
             obj.deriv_u_e = dcgain(controller_*s);
             if obj.deriv_u_e == 0
                 obj.dc_gain = dcgain(controller_);
             end
-            controller_d=c2d(controller_,st);
+            controller_d=c2d(controller_,st_);
             calc_coef(obj,controller_d);
-            if nargin < 3
-                u_sat_ = 1;
-            end
             obj.error=Queue(length(obj.error_coef));
             obj.control=Queue(length(obj.control_coef));
             obj.tau_cl=tau_cl_;
@@ -76,7 +73,6 @@ classdef Controller < BaseController
                 obj.control.initialize(C_est\(C_pred*pred_control+E*error_total));
                 error_=obj.error.get_data();
                 obj.error.initialize([error_(2:end) 0]);
-    %             u = obj.error(1:length(obj.error_coef))*obj.error_coef+obj.control(1:length(obj.control_coef))*obj.control_coef;
             end
 
             

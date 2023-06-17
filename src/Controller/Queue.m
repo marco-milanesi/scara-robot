@@ -31,7 +31,7 @@ classdef Queue < handle
             if nargin < 2
                 st_ = 1;
             end
-            dif=diff(obj.data)/st_;
+            dif=diff(flip(obj.data))/st_;
         end
 
         function dot_prd = mtimes(obj, vec_)
